@@ -94,3 +94,39 @@ bool CdiController::PenInput(uint16_t x, uint16_t y, bool button_1, bool button_
 	//Data has been sent
 	return true;
 }
+
+bool CdiController::KeyInput(uint8_t key_code, uint8_t extention, bool shift, bool capslock, bool alt, bool ctrl) {
+	if (!connected) return false;
+		
+	//Limit Extention bits
+	extention = extention & 0x03;
+		
+	//Setup the button bits
+	uint8_t buttons = (shift << 3) | (capslock << 4) | (alt << 5) | (ctrl << 6);
+	
+	//Initial bitmasks
+	uint8_t b0 = 0b10000000;
+	uint8_t b1 = 0b00000000;
+	
+	//Set bits
+	b0 = b0 | buttons | (extention << 2) | (keycode >> 7);
+	b1 = b1 | (keycode & 0b01111111);
+	
+	//Send data to CD-i player
+	serialPort.write(b0);
+	serialPort.write(b1);
+	
+	//Data has been sent
+	return true;
+}
+
+bool CdiController::KeyPress(uint8_t key_code, bool shift, bool capslock, bool alt, bool ctrl) {
+	return KeyInput(key_code, 0x00, shift, capslock, alt, ctrl);
+}
+bool CdiController::KeyRelease(bool shift, bool capslock, bool alt, bool ctrl) {
+	return KeyInput(0x00, 0x01, shift, capslock, alt, ctrl);
+}
+	
+bool CdiController::KeyReset() {
+	return KeyInput(0x00, 0x01, false, false, false, false);
+}

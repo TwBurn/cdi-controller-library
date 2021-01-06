@@ -16,10 +16,12 @@
 #include <SoftwareSerial.h>
 
 enum CdiDevices: uint8_t {
-	RELATIVE = 0b11001101, //Relative Input Devices (Mouse, etc)
-	MANEUVER = 0b11001010, //Maneuvering Devices (Joystick, Joypad, etc)
-	ABSOLUTE = 0b11010100, //Absolute Coordinate Devices (Graphics Tablet, etc)
-	SCREEN   = 0b11010011  //Absolute Screen Devices (Touch-screens, etc)	
+	RELATIVE = 0b11001101, //'M' Relative Input Devices (Mouse, etc)
+	MANEUVER = 0b11001010, //'J' Maneuvering Devices (Joystick, Joypad, etc)
+	ABSOLUTE = 0b11010100, //'T' Absolute Coordinate Devices (Graphics Tablet, etc)
+	SCREEN   = 0b11010011, //'S' Absolute Screen Devices (Touch-screens, etc)	
+	KEYBOARD = 0b11001011, //'K' Keyboard
+	EXT_KEYB = 0b11011000  //'X' Extended Keyboard
 };
 
 
@@ -41,6 +43,12 @@ public:
 
 	//Input function for Absolute Coordinate and Absolute Screen devices
 	bool PenInput(uint16_t x, uint16_t y, bool button_1, bool button_2, bool pen_down);
+	
+	//Input function for Keyboard and Extended Keyboard
+	bool KeyPress(uint8_t key_code, bool shift, bool capslock, bool alt, bool ctrl);
+	bool KeyRelease(bool shift, bool capslock, bool alt, bool ctrl);
+	bool KeyReset();
+	bool KeyInput(uint8_t key_code, uint8_t extention, bool shift, bool capslock, bool alt, bool ctrl);
 
 	bool IsConnected() { return connected; }
 	uint8_t RTSPin()   { return rtsPin; }
@@ -50,6 +58,8 @@ protected:
 	uint8_t rtsPin; //Pin number on the Arduino for the RTS (Request To Send) pin (pin#7 on CD-i player)
 	uint8_t rxdPin; //Pin number on the Arduino for the RXD (Data Transfer) pin (pin#2 on the CD-i player)
 	uint8_t mode;   //Current mode
+	
+	
 private:
 	SoftwareSerial serialPort; //Serial Port used to connect to the CD-i player
 	uint8_t oldButtons;        //Old button state

@@ -1,5 +1,5 @@
 /*
- * Example sketch for the CD-i Controller Library using a WiiU controller
+ * Example sketch for the CD-i Controller Library using a WiiMote or Wii U Pro controller
  * By Jeffrey Janssen - cdi@nmotion.nl
  */
  
@@ -32,7 +32,7 @@ void setup() {
 	Serial.begin(115200);
 	Usb.Init();
 	Cdi.Init();
-	Serial.println("Wii U Pro to CD-i started");
+	Serial.println("WiiMote/Wii U Pro to CD-i started");
 }
 
 //Joystick speed selection
@@ -43,15 +43,15 @@ int aSpeed[] = {8, 16, 32, 64}; //Analog (Stick)
 void loop() {
 	Usb.Task();
 	Cdi.Task();
-	
+
 	//Check if we can update
-	if(Wii.wiiUProControllerConnected && (int32_t)((uint32_t)millis() - nextUpdateTime) >= 0L) {
+	if((int32_t)((uint32_t)millis() - nextUpdateTime) >= 0L) {
 		nextUpdateTime = (uint32_t)millis() + updateInterval;
 		
 		//Alter Speed
-		if (Wii.getButtonClick(ZR) || Wii.getButtonClick(R) || Wii.getButtonClick(PLUS))  setSpeed(+1);
-		if (Wii.getButtonClick(ZL) || Wii.getButtonClick(L) || Wii.getButtonClick(MINUS)) setSpeed(-1);
-
+		if (Wii.getButtonClick(PLUS))  setSpeed(+1);
+		if (Wii.getButtonClick(MINUS)) setSpeed(-1);
+		
 		//Analog Stick
 		
 		int lhx = Wii.getAnalogHat(LeftHatX);
@@ -71,14 +71,23 @@ void loop() {
 		if (lhy > DEADZONE_MIN && lhy < DEADZONE_MAX) y = 0;
 		
 		//Directional input -> Overrides stick
-		if (Wii.getButtonPress(LEFT))  x = -dSpeed[speed];
-		if (Wii.getButtonPress(RIGHT)) x = +dSpeed[speed];
-		if (Wii.getButtonPress(UP))    y = -dSpeed[speed];
-		if (Wii.getButtonPress(DOWN))  y = +dSpeed[speed];
+		if (Wii.wiiUProControllerConnected) {
+			if (Wii.getButtonPress(LEFT))  x = -dSpeed[speed];
+			if (Wii.getButtonPress(RIGHT)) x = +dSpeed[speed];
+			if (Wii.getButtonPress(UP))    y = -dSpeed[speed];
+			if (Wii.getButtonPress(DOWN))  y = +dSpeed[speed];
+		}
+		else if (Wii.wiimoteConnected) {
+			//Assume WiiMote is held sideways
+			if (Wii.getButtonPress(UP))   x = -dSpeed[speed];
+			if (Wii.getButtonPress(DOWN)) x = +dSpeed[speed];
+			if (Wii.getButtonPress(RIGHT))y = -dSpeed[speed];
+			if (Wii.getButtonPress(LEFT)) y = +dSpeed[speed];
+		}
 		
 		//Buttons
-		bool bt_1 = Wii.getButtonPress(A) || Wii.getButtonPress(Y);
-		bool bt_2 = Wii.getButtonPress(B) || Wii.getButtonPress(X);
+		bool bt_1 = Wii.getButtonPress(A) || Wii.getButtonPress(Y) || Wii.getButtonPress(ONE);
+		bool bt_2 = Wii.getButtonPress(B) || Wii.getButtonPress(X) || Wii.getButtonPress(TWO);
 
 		bool updated = Cdi.JoyInput((byte)x, (byte)y, bt_1, bt_2);
 
