@@ -9,7 +9,7 @@ This library can be used to communicate as a controller to a CD-i player. It use
 Version | Date       | Comments
 ------- | ---------- | ---------------
 v1.0.0  | 03-01-2021 | Initial Release
-v1.0.1  | 06-01-2021 | Added experimental keyboard support, added and changed some examples, deeper analasys of the problem in "The Apprentice"
+v1.0.1  | 06-01-2021 | Added experimental keyboard support, added and changed some examples
 
 ## Table of contents
 * [Installation](#installation)

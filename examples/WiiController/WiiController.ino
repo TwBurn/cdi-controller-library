@@ -48,6 +48,12 @@ void loop() {
 	if((int32_t)((uint32_t)millis() - nextUpdateTime) >= 0L) {
 		nextUpdateTime = (uint32_t)millis() + updateInterval;
 		
+		//Disconnect on HOME
+		if (Wii.getButtonClick(HOME)) { // You can use getButtonPress to see if the button is held down
+			Serial.println("Disconnecting Controller");
+			Wii.disconnect();
+		}
+		
 		//Alter Speed
 		if (Wii.getButtonClick(PLUS))  setSpeed(+1);
 		if (Wii.getButtonClick(MINUS)) setSpeed(-1);
