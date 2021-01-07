@@ -59,6 +59,7 @@ Most of the examples make use of an USB Host Shield (<https://chome.nerpa.tech/a
 * **MagicNS**: Uses a Switch Pro controller connected to a Magic NS adapter, connected to a USB Host Shield as input for a CD-i Maneuvering Device. Both the left stick and d-pad are mapped to movement. With the left/right triggers a speed can be selected.
 * **USBKeyMouse**: Uses a Keyboard and/or Mouse connected to the USB port of a USB Host Shield as a CD-i Relative Coordinate Device. The mouse is mapped as expected, for a keyboard the directional keys are mapped to movement, 'Z' is mapped to button 1 and 'X' is mapped to button 2. The number keys (0-9) can be used for speed selection.
 * **WiiController**: Uses a WiiMote or Wii U Pro controller connected to Bluetooth adapter, connected to a USB Host Shield as input for a CD-i Maneuvering Device. Both the left stick and d-pad are mapped to movement. With the plus/minus buttons a speed can be selected. It assumes a sideways orientation for a WiiMote (D-pad left, buttons 1 and 2 to the right).
+* **WiiLightGun**: Uses a WiiMote connected to a Bluetooth adapter, connected to a USB Host Shield as input for a CD-i Absolute Coordinate Device. It uses the IR mode of the WiiMote, which needs to be enabled in the 'settings.h' file for in the USB Host Shield Library. Use button '1' and '2' to enable and disable IR Mode. Button A and B on the WiiMote are mapped to buttons 1 and 2 on the CD-i.
 * **WiiUProAbsolute**: Uses a Wii U Pro controller connected to Bluetooth adapter, connected to a USB Host Shield as input for a CD-i Absolute Coordinate Device. The range of the left stick is mapped to the full screen, the right stick provides a smaller offset for fine tuning.
 
 ## Known Issues
@@ -66,4 +67,3 @@ A simulated controller may not function as expected in all games. For example us
 
 ## ToDo
 * Document and test CD-i Keyboard support
-* Add an example for a WiiMote in combination with a sensor bar as to simulate a lightgun
