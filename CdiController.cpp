@@ -109,8 +109,8 @@ bool CdiController::KeyInput(uint8_t key_code, uint8_t extention, bool shift, bo
 	uint8_t b1 = 0b00000000;
 	
 	//Set bits
-	b0 = b0 | buttons | (extention << 2) | (keycode >> 7);
-	b1 = b1 | (keycode & 0b01111111);
+	b0 = b0 | buttons | (extention << 2) | (key_code >> 7);
+	b1 = b1 | (key_code & 0b01111111);
 	
 	//Send data to CD-i player
 	serialPort.write(b0);
