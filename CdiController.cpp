@@ -14,7 +14,7 @@
 void CdiController::Init() {
 	//Set RTS Pin to INPUT, initialise Serial Port
 	pinMode(rtsPin, INPUT);
-	serialPort.begin(1200);
+	serialPort->initialize(rxdPin);
 }
 
 void CdiController::Task() {
@@ -23,7 +23,7 @@ void CdiController::Task() {
 		//If we weren't connected, make ourselves known to the CD-i player
 		if (!connected) {
 			delay(100); //Specification asks for a delay between first asserting RTS state and writing the mode
-			serialPort.write(mode);
+			serialPort->write(mode);
 			connected = true;
 		}
 	}
@@ -38,7 +38,7 @@ bool CdiController::JoyInput(uint8_t x, uint8_t y, bool button_1, bool button_2)
 	uint8_t buttons = (button_1 << 5) | (button_2 << 4);
 
 	//Don't transmit if we aren't connected or if nothing has changed
-	if (!connected || (x == 0 && y == 0 && buttons == oldButtons)) return false;
+	if (!connected || (x == 0 && y == 0 && buttons == oldButtons) || commBusy()) return false;
 	
 	//Initial bitmasks
 	uint8_t b0 = 0b11000000;
@@ -51,9 +51,9 @@ bool CdiController::JoyInput(uint8_t x, uint8_t y, bool button_1, bool button_2)
 	b2 = b2 | (y & 0b00111111);
 	
 	//Send to CD-i player
-	serialPort.write(b0);
-	serialPort.write(b1);
-	serialPort.write(b2);
+	serialPort->write(b0);
+	serialPort->write(b1);
+	serialPort->write(b2);
 	
 	//Save old button state
 	oldButtons = buttons;
@@ -64,7 +64,7 @@ bool CdiController::JoyInput(uint8_t x, uint8_t y, bool button_1, bool button_2)
 
 bool CdiController::PenInput(uint16_t x, uint16_t y, bool button_1, bool button_2, bool pen_down) {
 	//Don't transmit if we aren't connected
-	if (!connected) return false;
+	if (!connected || commBusy()) return false;
 
 	//Limit input to 10 bits
 	x = x & 0x3FF;
@@ -86,17 +86,17 @@ bool CdiController::PenInput(uint16_t x, uint16_t y, bool button_1, bool button_
 	b3 = b3 | (y & 0b00111111);
 		
 	//Send data to CD-i player
-	serialPort.write(b0);
-	serialPort.write(b1);
-	serialPort.write(b2);
-	serialPort.write(b3);
+	serialPort->write(b0);
+	serialPort->write(b1);
+	serialPort->write(b2);
+	serialPort->write(b3);
 
 	//Data has been sent
 	return true;
 }
 
 bool CdiController::KeyInput(uint8_t key_code, uint8_t extention, bool shift, bool capslock, bool alt, bool ctrl) {
-	if (!connected) return false;
+	if (!connected || commBusy()) return false;
 		
 	//Limit Extention bits
 	extention = extention & 0x03;
@@ -113,8 +113,8 @@ bool CdiController::KeyInput(uint8_t key_code, uint8_t extention, bool shift, bo
 	b1 = b1 | (key_code & 0b01111111);
 	
 	//Send data to CD-i player
-	serialPort.write(b0);
-	serialPort.write(b1);
+	serialPort->write(b0);
+	serialPort->write(b1);
 	
 	//Data has been sent
 	return true;

@@ -36,7 +36,7 @@ void setup() {
 	Serial.begin(115200);
 	Usb.Init();
 	Cdi.Init();
-	Serial.println("WiiMote/Wii U Pro to CD-i started");
+	Serial.println("WiiMote Lightgun to CD-i started");
 }
 
 int x;

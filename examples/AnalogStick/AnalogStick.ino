@@ -21,10 +21,6 @@
 
 CdiController Cdi(PIN_RTS, PIN_RXD, MANEUVER);
 
-//For update limiting.
-uint32_t nextUpdateTime;
-uint8_t updateInterval = 20; //~50Hz
-
 void setup() {
 	Serial.begin(115200);
 	Cdi.Init();
@@ -51,7 +47,7 @@ void loop() {
 	if (lhy > DEADZONE_MIN && lhy < DEADZONE_MAX) y = 0;
 	
 	//Buttons
-	bool bt_1 = analogRead(PIN_B) < 16;
+	bool bt_1 = analogRead(PIN_B) == 0;
 	bool bt_2 = false;
 
 	bool updated = Cdi.JoyInput((byte)x, (byte)y, bt_1, bt_2);

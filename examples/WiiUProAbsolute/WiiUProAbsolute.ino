@@ -5,7 +5,7 @@
  
 #include <Wii.h>
 #include <usbhub.h>
-#include "CdiController.h"
+#include <CdiController.h>
 
 #define PIN_RTS 2
 #define PIN_RXD 3 
@@ -20,10 +20,6 @@ WII Wii(&Btd); //Normal usage
 
 CdiController Cdi(PIN_RTS, PIN_RXD, ABSOLUTE);
 
-//For update limiting.
-uint32_t nextUpdateTime;
-uint8_t updateInterval = 20; //~50Hz
-
 void setup() {
 	Serial.begin(115200);
 	Usb.Init();
@@ -36,9 +32,7 @@ void loop() {
 	Cdi.Task();
 	
 	//Check if we can update
-	if(Wii.wiiUProControllerConnected && (int32_t)((uint32_t)millis() - nextUpdateTime) >= 0L) {
-		nextUpdateTime = (uint32_t)millis() + updateInterval;
-
+	if(Wii.wiiUProControllerConnected) {
 		//Analog Sticks
 		int lhx = Wii.getAnalogHat(LeftHatX);
 		int lhy = Wii.getAnalogHat(LeftHatY);

@@ -3,13 +3,14 @@
 The code is released under the GNU General Public License.
 
 ## Summary
-This library can be used to communicate as a controller to a CD-i player. It uses the SoftwareSerial library for serial communication.
+This library can be used to communicate as a controller to a CD-i player.
 
 ## Changelog
 Version | Date       | Comments
 ------- | ---------- | ---------------
 v1.0.0  | 03-01-2021 | Initial Release
 v1.0.1  | 06-01-2021 | Added experimental keyboard support, added and changed some examples
+v1.1.0  | 23-01-2021 | Implemented serial communication using a timer instead of the SoftwareSerial library
 
 ## Table of contents
 * [Installation](#installation)
@@ -19,6 +20,7 @@ v1.0.1  | 06-01-2021 | Added experimental keyboard support, added and changed so
 	* [Devices](#devices)
 	* [Input Modes](#input-modes)
 * [Examples](#examples)
+* [Comments](#comments)
 * [Known Issues](#known-issues)
 * [ToDo](#todo)
 
@@ -56,14 +58,18 @@ For all of these functions a boolean value is returned indicating if data has ac
 Most of the examples make use of an USB Host Shield (<https://chome.nerpa.tech/arduino_usb_host_shield_projects/>) to use a controller as input, then converting this to a CD-i joystick. The following examples are included:
 
 * **AnalogStick**: Uses an analog stick connected to the analog inputs of the Arduino as input for a CD-i Maneuvering Device. Clicking the stick serves as button 1.
-* **MagicNS**: Uses a Switch Pro controller connected to a Magic NS adapter, connected to a USB Host Shield as input for a CD-i Maneuvering Device. Both the left stick and d-pad are mapped to movement. With the left/right triggers a speed can be selected.
+* **MagicNS**: Uses a controller (for example Switch SNES or Switch Pro) connected to a Magic NS adapter, connected to a USB Host Shield as input for a CD-i Maneuvering Device. Both the left stick and d-pad are mapped to movement. With the left/right triggers a speed can be selected.
 * **USBKeyMouse**: Uses a Keyboard and/or Mouse connected to the USB port of a USB Host Shield as a CD-i Relative Coordinate Device. The mouse is mapped as expected, for a keyboard the directional keys are mapped to movement, 'Z' is mapped to button 1 and 'X' is mapped to button 2. The number keys (0-9) can be used for speed selection.
 * **WiiController**: Uses a WiiMote or Wii U Pro controller connected to Bluetooth adapter, connected to a USB Host Shield as input for a CD-i Maneuvering Device. Both the left stick and d-pad are mapped to movement. With the plus/minus buttons a speed can be selected. It assumes a sideways orientation for a WiiMote (D-pad left, buttons 1 and 2 to the right).
 * **WiiLightGun**: Uses a WiiMote connected to a Bluetooth adapter, connected to a USB Host Shield as input for a CD-i Absolute Coordinate Device. It uses the IR mode of the WiiMote, which needs to be enabled in the 'settings.h' file for in the USB Host Shield Library. Use button '1' and '2' to enable and disable IR Mode. Button A and B on the WiiMote are mapped to buttons 1 and 2 on the CD-i.
 * **WiiUProAbsolute**: Uses a Wii U Pro controller connected to Bluetooth adapter, connected to a USB Host Shield as input for a CD-i Absolute Coordinate Device. The range of the left stick is mapped to the full screen, the right stick provides a smaller offset for fine tuning.
 
+## Comments
+Communication is now implemented using a timer/interrupts. This fixes the issue with The Apprentice (which expects 100% serial line usage) and makes it run smoother in other games as well.
+
 ## Known Issues
-A simulated controller may not function as expected in all games. For example using the Joypad examples with "The Apprentice" game, the running animation keeps restarting and also the maximum running speed is never reached. This is due to rate limiting of the packets to the CD-i player. Lowering this delay (20ms in the example) introduces lag in the controller, as the USB buffer fills up faster than data can be sent to the CD-i player.
+
 
 ## ToDo
 * Document and test CD-i Keyboard support
+* Test two player support using a single Arduino

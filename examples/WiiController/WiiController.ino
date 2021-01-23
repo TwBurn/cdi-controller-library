@@ -24,10 +24,6 @@ WII Wii(&Btd); //Normal usage
 
 CdiController Cdi(PIN_RTS, PIN_RXD, MANEUVER);
 
-//For update limiting.
-uint32_t nextUpdateTime;
-uint8_t updateInterval = 20; //~50Hz
-
 void setup() {
 	Serial.begin(115200);
 	Usb.Init();
@@ -44,71 +40,66 @@ void loop() {
 	Usb.Task();
 	Cdi.Task();
 
-	//Check if we can update
-	if((int32_t)((uint32_t)millis() - nextUpdateTime) >= 0L) {
-		nextUpdateTime = (uint32_t)millis() + updateInterval;
-		
-		//Disconnect on HOME
-		if (Wii.getButtonClick(HOME)) { // You can use getButtonPress to see if the button is held down
-			Serial.println("Disconnecting Controller");
-			Wii.disconnect();
-		}
-		
-		//Alter Speed
-		if (Wii.getButtonClick(PLUS))  setSpeed(+1);
-		if (Wii.getButtonClick(MINUS)) setSpeed(-1);
-		
-		//Analog Stick
-		
-		int lhx = Wii.getAnalogHat(LeftHatX);
-		int lhy = Wii.getAnalogHat(LeftHatY);
-		//int rhx = Wii.getAnalogHat(RightHatX);
-		//int rhy = Wii.getAnalogHat(RightHatY);
-		
-		lhx = constrain(lhx, JOY_MIN, JOY_MAX);
-		lhy = constrain(lhy, JOY_MIN, JOY_MAX);
-		//rhx = constrain(rhx, JOY_MIN, JOY_MAX);
-		//rhy = constrain(rhy, JOY_MIN, JOY_MAX);
-		
-		int x = map(lhx, JOY_MIN, JOY_MAX, -aSpeed[speed], +aSpeed[speed]);
-		int y = map(lhy, JOY_MAX, JOY_MIN, -aSpeed[speed], +aSpeed[speed]); //Inverted
-		
-		if (lhx > DEADZONE_MIN && lhx < DEADZONE_MAX) x = 0;
-		if (lhy > DEADZONE_MIN && lhy < DEADZONE_MAX) y = 0;
-		
-		//Directional input -> Overrides stick
-		if (Wii.wiiUProControllerConnected) {
-			if (Wii.getButtonPress(LEFT))  x = -dSpeed[speed];
-			if (Wii.getButtonPress(RIGHT)) x = +dSpeed[speed];
-			if (Wii.getButtonPress(UP))    y = -dSpeed[speed];
-			if (Wii.getButtonPress(DOWN))  y = +dSpeed[speed];
-		}
-		else if (Wii.wiimoteConnected) {
-			//Assume WiiMote is held sideways
-			if (Wii.getButtonPress(UP))   x = -dSpeed[speed];
-			if (Wii.getButtonPress(DOWN)) x = +dSpeed[speed];
-			if (Wii.getButtonPress(RIGHT))y = -dSpeed[speed];
-			if (Wii.getButtonPress(LEFT)) y = +dSpeed[speed];
-		}
-		
-		//Buttons
-		bool bt_1 = Wii.getButtonPress(A) || Wii.getButtonPress(Y) || Wii.getButtonPress(ONE);
-		bool bt_2 = Wii.getButtonPress(B) || Wii.getButtonPress(X) || Wii.getButtonPress(TWO);
+	//Disconnect on HOME
+	if (Wii.getButtonClick(HOME)) { // You can use getButtonPress to see if the button is held down
+		Serial.println("Disconnecting Controller");
+		Wii.disconnect();
+	}
+	
+	//Alter Speed
+	if (Wii.getButtonClick(PLUS))  setSpeed(+1);
+	if (Wii.getButtonClick(MINUS)) setSpeed(-1);
+	
+	//Analog Stick
+	
+	int lhx = Wii.getAnalogHat(LeftHatX);
+	int lhy = Wii.getAnalogHat(LeftHatY);
+	//int rhx = Wii.getAnalogHat(RightHatX);
+	//int rhy = Wii.getAnalogHat(RightHatY);
+	
+	lhx = constrain(lhx, JOY_MIN, JOY_MAX);
+	lhy = constrain(lhy, JOY_MIN, JOY_MAX);
+	//rhx = constrain(rhx, JOY_MIN, JOY_MAX);
+	//rhy = constrain(rhy, JOY_MIN, JOY_MAX);
+	
+	int x = map(lhx, JOY_MIN, JOY_MAX, -aSpeed[speed], +aSpeed[speed]);
+	int y = map(lhy, JOY_MAX, JOY_MIN, -aSpeed[speed], +aSpeed[speed]); //Inverted
+	
+	if (lhx > DEADZONE_MIN && lhx < DEADZONE_MAX) x = 0;
+	if (lhy > DEADZONE_MIN && lhy < DEADZONE_MAX) y = 0;
+	
+	//Directional input -> Overrides stick
+	if (Wii.wiiUProControllerConnected) {
+		if (Wii.getButtonPress(LEFT))  x = -dSpeed[speed];
+		if (Wii.getButtonPress(RIGHT)) x = +dSpeed[speed];
+		if (Wii.getButtonPress(UP))    y = -dSpeed[speed];
+		if (Wii.getButtonPress(DOWN))  y = +dSpeed[speed];
+	}
+	else if (Wii.wiimoteConnected) {
+		//Assume WiiMote is held sideways
+		if (Wii.getButtonPress(UP))   x = -dSpeed[speed];
+		if (Wii.getButtonPress(DOWN)) x = +dSpeed[speed];
+		if (Wii.getButtonPress(RIGHT))y = -dSpeed[speed];
+		if (Wii.getButtonPress(LEFT)) y = +dSpeed[speed];
+	}
+	
+	//Buttons
+	bool bt_1 = Wii.getButtonPress(A) || Wii.getButtonPress(Y) || Wii.getButtonPress(ONE);
+	bool bt_2 = Wii.getButtonPress(B) || Wii.getButtonPress(X) || Wii.getButtonPress(TWO);
 
-		bool updated = Cdi.JoyInput((byte)x, (byte)y, bt_1, bt_2);
+	bool updated = Cdi.JoyInput((byte)x, (byte)y, bt_1, bt_2);
 
-		if (updated) {
-			Serial.print("x=");
-			Serial.print(x);
-			Serial.print(" y=");
-			Serial.print(y);
-			Serial.print(" B1=");
-			Serial.print(bt_1);
-			Serial.print(" B2=");
-			Serial.print(bt_2);
-			Serial.println();
-		}
-  }
+	if (updated) {
+		Serial.print("x=");
+		Serial.print(x);
+		Serial.print(" y=");
+		Serial.print(y);
+		Serial.print(" B1=");
+		Serial.print(bt_1);
+		Serial.print(" B2=");
+		Serial.print(bt_2);
+		Serial.println();
+	}
 }
 void setSpeed(int delta) {
   speed = min(3, max(0, speed + delta));

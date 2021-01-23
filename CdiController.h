@@ -13,13 +13,13 @@
 #define __CdiController_h__
 
 #include "Arduino.h"
-#include <SoftwareSerial.h>
+#include "CdiSerial.h"
 
 enum CdiDevices: uint8_t {
 	RELATIVE = 0b11001101, //'M' Relative Input Devices (Mouse, etc)
 	MANEUVER = 0b11001010, //'J' Maneuvering Devices (Joystick, Joypad, etc)
 	ABSOLUTE = 0b11010100, //'T' Absolute Coordinate Devices (Graphics Tablet, etc)
-	SCREEN   = 0b11010011, //'S' Absolute Screen Devices (Touch-screens, etc)	
+	SCREEN   = 0b11010011, //'S' Absolute Screen Devices (Touch-screens, etc)
 	KEYBOARD = 0b11001011, //'K' Keyboard
 	EXT_KEYB = 0b11011000  //'X' Extended Keyboard
 };
@@ -28,10 +28,12 @@ enum CdiDevices: uint8_t {
 class CdiController {
 public:
 	//Constructor
-	CdiController(uint8_t _rtsPin, uint8_t _rxdPin, uint8_t _mode) : serialPort(_rtsPin, _rxdPin, true) {
+	CdiController(uint8_t _rtsPin, uint8_t _rxdPin, uint8_t _mode, uint8_t _playerNumber = 0) {
 		rtsPin = _rtsPin;
 		rxdPin = _rxdPin;
 		mode   = _mode;
+
+		serialPort = &CdiPlayers[_playerNumber];
 		connected = false;
 	}
 
@@ -59,10 +61,12 @@ protected:
 	uint8_t rxdPin; //Pin number on the Arduino for the RXD (Data Transfer) pin (pin#2 on the CD-i player)
 	uint8_t mode;   //Current mode
 	
-	
+	inline bool commBusy() {
+	return serialPort->isBusy();
+	}
 private:
-	SoftwareSerial serialPort; //Serial Port used to connect to the CD-i player
 	uint8_t oldButtons;        //Old button state
+	CdiSerial *serialPort;
 };
 
 #endif
