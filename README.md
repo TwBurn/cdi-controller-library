@@ -27,6 +27,13 @@ v1.1.0  | 23-01-2021 | Implemented serial communication using a timer instead of
 ## Installation
 For installation see: <https://www.arduino.cc/en/Guide/Libraries#importing-a-zip-library> or simply place the CdiController.cpp and CdiController.h files in the sketch folder.
 
+### Requirements
+Also you need the following libraries installed:
+* TimerOne Library (https://github.com/PaulStoffregen/TimerOne)
+* USB Host Shield Library (https://github.com/felis/USB_Host_Shield_2.0) 
+
+Both of these libraries can also be installed via the Arduino Library Manager. For the USB Host Shield Library I recommend downgrading to version 1.3.2 (the Library Manager has an option for this) since this produces the smallest code, especially if you want to use Bluetooth controllers, like the WiiMote.
+
 ## Library Usage
 
 ### Hardware Setup
